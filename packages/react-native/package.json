@@ -1,0 +1,33 @@
+{
+  "name": "@zot-native/react-native",
+  "version": "0.0.1",
+  "description": "In-process zot agent runtime for React Native",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "react-native": "src/index.ts",
+  "exports": {
+    ".": {
+      "react-native": "./src/index.ts",
+      "types": "./dist/index.d.ts",
+      "default": "./dist/index.js"
+    }
+  },
+  "files": ["src", "dist", "ios", "android", "README.md", "LICENSE", "react-native.config.js", "react-native-zot.podspec"],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patriceckhart/zot-native-sdk.git",
+    "directory": "packages/react-native"
+  },
+  "homepage": "https://github.com/patriceckhart/zot-native-sdk#readme",
+  "bugs": "https://github.com/patriceckhart/zot-native-sdk/issues",
+  "keywords": ["zot", "react-native", "ios", "android", "ai", "agent"],
+  "publishConfig": { "access": "public" },
+  "dependencies": { "@zot-native/core": "0.0.1" },
+  "peerDependencies": { "react": "*", "react-native": ">=0.72" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

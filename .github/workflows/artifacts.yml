@@ -1,0 +1,55 @@
+name: Build native artifacts
+on:
+  workflow_dispatch:
+  release:
+    types: [published]
+
+permissions:
+  contents: write
+
+jobs:
+  mobile:
+    runs-on: macos-15
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod, cache: true }
+      - run: go install golang.org/x/mobile/cmd/gomobile@latest && go install golang.org/x/mobile/cmd/gobind@latest && gomobile init
+      - run: mkdir -p artifacts/mobile && gomobile bind -target=ios,iossimulator,macos -iosversion 15.0 -macosversion 12.0 -o artifacts/Zot.xcframework ./bridge
+      - run: gomobile bind -target=ios,iossimulator -iosversion 15.0 -o artifacts/mobile/Zot.xcframework ./bridge
+      - run: gomobile bind -target=android -androidapi 24 -o artifacts/zot.aar ./bridge
+      - run: cd artifacts && zip -r -X Zot.xcframework.zip Zot.xcframework && cd mobile && zip -r -X ../ZotMobile.xcframework.zip Zot.xcframework
+      - uses: actions/upload-artifact@v4
+        with: { name: mobile, path: "artifacts/*" }
+      - if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: |
+            artifacts/Zot.xcframework.zip
+            artifacts/ZotMobile.xcframework.zip
+            artifacts/zot.aar
+  sidecars:
+    strategy:
+      matrix:
+        include:
+          - { os: macos-15, goos: darwin, goarch: arm64, name: zot-bridge-darwin-arm64 }
+          - { os: macos-15, goos: darwin, goarch: amd64, name: zot-bridge-darwin-x64 }
+          - { os: ubuntu-latest, goos: linux, goarch: amd64, name: zot-bridge-linux-x64 }
+          - { os: ubuntu-latest, goos: linux, goarch: arm64, name: zot-bridge-linux-arm64 }
+          - { os: windows-latest, goos: windows, goarch: amd64, name: zot-bridge-windows-x64.exe }
+          - { os: windows-latest, goos: windows, goarch: arm64, name: zot-bridge-windows-arm64.exe }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod, cache: true }
+      - run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ matrix.name }} ./cmd/zot-bridge
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with: { name: "${{ matrix.name }}", path: "${{ matrix.name }}" }
+      - if: github.event_name == 'release'
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ github.event.release.tag_name }}
+          files: ${{ matrix.name }}

@@ -1,0 +1,32 @@
+{
+  "name": "@zot-native/electron",
+  "version": "0.0.1",
+  "description": "Production Electron client for the zot agent runtime",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "bin", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patriceckhart/zot-native-sdk.git",
+    "directory": "packages/electron"
+  },
+  "homepage": "https://github.com/patriceckhart/zot-native-sdk#readme",
+  "bugs": "https://github.com/patriceckhart/zot-native-sdk/issues",
+  "keywords": ["zot", "electron", "ai", "agent", "llm"],
+  "engines": { "node": ">=20" },
+  "publishConfig": { "access": "public" },
+  "dependencies": { "@zot-native/core": "0.0.1" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

@@ -1,0 +1,30 @@
+{
+  "name": "@zot-native/native-sdk",
+  "version": "0.0.1",
+  "description": "Replay-safe zot integration for Vercel Labs Native SDK",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "src", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patriceckhart/zot-native-sdk.git",
+    "directory": "packages/native-sdk"
+  },
+  "homepage": "https://github.com/patriceckhart/zot-native-sdk#readme",
+  "bugs": "https://github.com/patriceckhart/zot-native-sdk/issues",
+  "keywords": ["zot", "native-sdk", "ai", "agent", "llm"],
+  "publishConfig": { "access": "public" },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}

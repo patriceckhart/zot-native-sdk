@@ -1,0 +1,10 @@
+.dart_tool/
+build/
+pubspec.lock
+android/libs/*.aar
+*.log
+!android/libs/zot.jar
+!android/src/main/jniLibs/
+!android/src/main/jniLibs/**
+!ios/zot_native/Zot.xcframework/
+!ios/zot_native/Zot.xcframework/**

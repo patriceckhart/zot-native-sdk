@@ -1,0 +1,23 @@
+buildscript {
+  repositories { google(); mavenCentral() }
+  dependencies { classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0" }
+}
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+
+android {
+  namespace "dev.zot.reactnative"
+  compileSdk 35
+  defaultConfig { minSdk 24 }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+}
+kotlin { jvmToolchain(17) }
+
+repositories { google(); mavenCentral() }
+dependencies {
+  implementation "com.facebook.react:react-android:+"
+  implementation files("libs/zot.jar")
+}

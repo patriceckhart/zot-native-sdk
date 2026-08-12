@@ -1,0 +1,19 @@
+[package]
+name = "tauri-plugin-zot"
+version = "0.0.1"
+edition = "2021"
+description = "Tauri 2 plugin for the zot agent runtime"
+license = "MIT"
+repository = "https://github.com/patriceckhart/zot-native-sdk"
+homepage = "https://github.com/patriceckhart/zot-native-sdk"
+readme = "README.md"
+keywords = ["tauri", "zot", "ai", "agent"]
+categories = ["api-bindings"]
+exclude = ["target"]
+
+[dependencies]
+tauri = { version = "2", default-features = false }
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tokio = { version = "1", features = ["process", "io-util", "sync"] }
+uuid = { version = "1", features = ["v4"] }

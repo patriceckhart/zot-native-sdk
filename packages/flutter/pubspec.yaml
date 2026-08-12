@@ -1,0 +1,25 @@
+name: zot_native
+description: Cross-platform Flutter bindings for the zot agent runtime with streaming, cancellation, API keys, and subscription OAuth.
+version: 0.0.1
+homepage: https://github.com/patriceckhart/zot-native-sdk
+repository: https://github.com/patriceckhart/zot-native-sdk/tree/main/packages/flutter
+issue_tracker: https://github.com/patriceckhart/zot-native-sdk/issues
+topics:
+  - ai
+  - agents
+  - llm
+  - oauth
+environment:
+  sdk: ">=3.4.0 <4.0.0"
+  flutter: ">=3.22.0"
+dependencies:
+  flutter:
+    sdk: flutter
+flutter:
+  plugin:
+    platforms:
+      android:
+        package: dev.zot.flutter
+        pluginClass: ZotNativePlugin
+      ios:
+        pluginClass: ZotNativePlugin

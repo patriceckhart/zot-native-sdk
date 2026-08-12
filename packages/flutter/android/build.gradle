@@ -1,0 +1,21 @@
+group = "dev.zot.flutter"
+version = "0.0.1"
+
+buildscript {
+  repositories { google(); mavenCentral() }
+  dependencies { classpath "com.android.tools.build:gradle:8.7.3"; classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:2.1.0" }
+}
+apply plugin: "com.android.library"
+apply plugin: "kotlin-android"
+android {
+  namespace "dev.zot.flutter"
+  compileSdk 35
+  defaultConfig { minSdk 24 }
+  compileOptions {
+    sourceCompatibility JavaVersion.VERSION_17
+    targetCompatibility JavaVersion.VERSION_17
+  }
+}
+kotlin { jvmToolchain(17) }
+repositories { google(); mavenCentral() }
+dependencies { implementation files("libs/zot.jar") }

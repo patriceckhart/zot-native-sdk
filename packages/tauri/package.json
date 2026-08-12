@@ -1,0 +1,34 @@
+{
+  "name": "@zot-native/tauri",
+  "version": "0.0.1",
+  "description": "TypeScript client for the zot Tauri 2 plugin",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "exports": {
+    ".": {
+      "types": "./dist/index.d.ts",
+      "import": "./dist/index.js"
+    }
+  },
+  "files": ["dist", "README.md", "LICENSE"],
+  "sideEffects": false,
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/patriceckhart/zot-native-sdk.git",
+    "directory": "packages/tauri"
+  },
+  "homepage": "https://github.com/patriceckhart/zot-native-sdk#readme",
+  "bugs": "https://github.com/patriceckhart/zot-native-sdk/issues",
+  "keywords": ["zot", "tauri", "ai", "agent", "llm"],
+  "publishConfig": { "access": "public" },
+  "dependencies": {
+    "@zot-native/core": "0.0.1",
+    "@tauri-apps/api": "^2.0.0"
+  },
+  "scripts": {
+    "build": "tsc -p tsconfig.json",
+    "typecheck": "tsc -p tsconfig.json --noEmit"
+  }
+}
