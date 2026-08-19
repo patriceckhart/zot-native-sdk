@@ -6,6 +6,25 @@ Use zot from one React Native API on iOS, Android, macOS, Windows, Linux, and we
 - Windows, Linux, and web connect to `zot-gateway` over WebSocket.
 - Streaming, cancellation, stateful history, API keys, and Claude or ChatGPT subscription OAuth are supported by both transports.
 
+## Installation
+
+The package is not published to npm yet. Build the repository first:
+
+```sh
+bun install
+bun run build
+make stage
+```
+
+Then add both local packages to the React Native application:
+
+```sh
+bun add /absolute/path/to/zot-native-sdk/packages/core
+bun add /absolute/path/to/zot-native-sdk/packages/react-native
+```
+
+Run CocoaPods for iOS or macOS, then rebuild the native application. Once published, installation will be `bun add @zot-native/react-native`.
+
 ## Mobile and macOS
 
 Native platforms do not require a gateway:
@@ -29,7 +48,11 @@ Requires iOS 15, macOS 12, or Android API 24. Run CocoaPods after installation o
 
 ## Windows, Linux, and web
 
-Start a gateway on a trusted server:
+Build and start a gateway on a trusted server:
+
+```sh
+make gateway
+```
 
 ```sh
 ZOT_GATEWAY_TOKEN="replace-me" \

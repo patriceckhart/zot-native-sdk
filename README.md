@@ -2,17 +2,17 @@
 
 Use the [zot](https://github.com/patriceckhart/zot) agent runtime from native application frameworks. The SDK supports streaming, cancellation, stateful conversations, API keys, and Claude or ChatGPT subscription OAuth credentials.
 
-A backend is not required when users provide their own credentials. Never embed developer-owned API keys or reusable OAuth credentials in a distributed mobile or desktop application. Applications that fund requests for their users should keep provider credentials on a trusted backend.
+iOS, Android, and macOS embed zot in-process and do not require a backend when users provide their own credentials. React Native Windows, Linux, and web use the included `zot-gateway` WebSocket service because those runtimes cannot load the gomobile artifacts. Never embed developer-owned API keys or reusable OAuth credentials in a distributed application.
 
 ## Status
 
-This repository is a production release candidate. The available local validation is extensive, but the following release gates remain:
+This repository is a production release candidate. The multiplatform React Native implementation is complete, with these release constraints:
 
+- Packages are currently consumed from source. The `0.0.1` packages have not been published to npm, pub.dev, or crates.io.
+- Generated XCFrameworks, Android JNI libraries, sidecars, and gateway executables are not committed to Git. Build them with `make stage` and `make gateway`, or install them from a GitHub Release when available.
 - Live provider requests require externally supplied API keys or OAuth test credentials.
-- React Native 0.82 iOS is blocked by an upstream `fmt` compilation failure with Xcode 26 before the zot target compiles.
-- Registry publication, platform signing, pushed tags, and GitHub Releases require their respective credentials and release infrastructure.
-
-Do not treat the current `0.0.1` packages as published registry releases until the corresponding registry entries and GitHub Release exist.
+- React Native 0.82 iOS remains blocked by an upstream `fmt` compilation failure with Xcode 26 before the zot target compiles.
+- Production distribution still requires platform signing, registry credentials, tags, and release artifacts.
 
 ## Supported integrations
 
@@ -46,7 +46,7 @@ No filesystem, shell, or subprocess tools are registered in embedded zot session
 - Bun or Node.js 20 or newer for TypeScript packages
 - CocoaPods when using Flutter or React Native CocoaPods integration
 
-The generated binaries are architecture-specific. Electron and other sidecar hosts support macOS, Linux, and Windows on arm64 and x64. Mobile artifacts include the architectures emitted by `gomobile` for their respective platforms.
+The generated binaries are architecture-specific. Sidecars and gateways support macOS, Linux, and Windows on arm64 and x64. Gomobile artifacts contain iOS, iOS simulator, macOS, and Android architectures for their respective consumers.
 
 ## Providers
 
@@ -68,9 +68,23 @@ OAuth browser authorization, callback handling, token refresh, revocation, accou
 
 ## Installation
 
-The package manifests are prepared for npm, pub.dev, crates.io, Swift Package Manager, and release artifact distribution. Until packages are published, consume this repository from source and run `make stage`, or download generated artifacts from a GitHub Release when one is available.
+The package manifests are prepared for npm, pub.dev, crates.io, Swift Package Manager, and release artifact distribution. Until publication, clone this repository and prepare it with:
 
-Planned registry package names are:
+```sh
+bun install
+bun run build
+make stage
+make gateway
+```
+
+Add the source packages to a React Native application on the same machine:
+
+```sh
+bun add /absolute/path/to/zot-native-sdk/packages/core
+bun add /absolute/path/to/zot-native-sdk/packages/react-native
+```
+
+Then run CocoaPods for iOS or macOS and rebuild the native application. Registry package names are:
 
 ```sh
 npm install @zot-native/react-native
@@ -84,7 +98,7 @@ flutter pub add zot_native
 cargo add tauri-plugin-zot
 ```
 
-Direct Swift consumers use `apple/Package.swift`. Direct Kotlin and Java consumers use the release AAR or locally generated `artifacts/zot.aar`.
+These registry packages are not published yet. Direct Swift consumers use `apple/Package.swift`. Direct Kotlin and Java consumers use the release AAR or locally generated `artifacts/zot.aar`.
 
 ## Basic usage
 
@@ -300,7 +314,7 @@ await session.close();
 
 ## Building from source
 
-Build the web and remote React Native gateway with `make gateway`, or run it directly with `go run ./cmd/zot-gateway`.
+Build the Windows, Linux, and web React Native gateway with `make gateway`, or run it directly with `go run ./cmd/zot-gateway`.
 
 Install the required toolchains, then initialize `gomobile`:
 
@@ -344,6 +358,7 @@ Useful individual targets are:
 ```sh
 make test
 make sidecar
+make gateway
 make desktop
 make desktop-all
 make apple
@@ -386,6 +401,8 @@ The generated artifacts and adapters have been validated with:
 - Flutter analysis and pub.dev dry run with zero warnings
 - npm package dry runs
 - Cross-compilation of six desktop sidecars
+- Authenticated WebSocket gateway protocol tests
+- Gateway release builds for macOS, Linux, and Windows on arm64 and x64
 
 The React Native iOS blocker is in the upstream React Native `fmt` dependency under Xcode 26. Zot's Swift bridge and generated simulator XCFramework compile successfully through both Flutter CocoaPods and Swift Package Manager consumers.
 
@@ -416,7 +433,7 @@ Before declaring a production release:
 6. Sign and notarize desktop and Apple artifacts where required.
 7. Sign Android release artifacts and applications where required.
 8. Publish matching package versions to npm, pub.dev, and crates.io.
-9. Publish XCFrameworks, the AAR, and six sidecars in a GitHub Release.
+9. Publish XCFrameworks, the AAR, six sidecars, and six gateway executables in a GitHub Release.
 10. Verify installation from each public registry and release artifact.
 
 ## License
