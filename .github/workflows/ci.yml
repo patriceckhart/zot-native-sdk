@@ -32,6 +32,16 @@ jobs:
       - uses: actions/checkout@v4
       - uses: dtolnay/rust-toolchain@stable
         with: { components: rustfmt }
+      - name: Install Tauri system dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            libwebkit2gtk-4.1-dev \
+            libayatana-appindicator3-dev \
+            librsvg2-dev \
+            libxdo-dev \
+            libssl-dev \
+            patchelf
       - run: cargo fmt --manifest-path crates/tauri-plugin-zot/Cargo.toml -- --check
       - run: cargo check --locked --manifest-path crates/tauri-plugin-zot/Cargo.toml
       - run: cargo package --locked --allow-dirty --manifest-path crates/tauri-plugin-zot/Cargo.toml
