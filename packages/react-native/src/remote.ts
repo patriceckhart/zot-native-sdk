@@ -1,4 +1,4 @@
-import type { GatewayOptions, SessionOptions, ZotEvent, ZotSession } from "@zot-native/core";
+import type { GatewayOptions, SessionOptions, ZotEvent, ZotSession } from "@zot/native-core";
 
 type Listener = (event: ZotEvent) => void;
 type Pending = { resolve(value: any): void; reject(error: Error): void };

@@ -1,4 +1,4 @@
-# @zot-native/electron
+# @zot/native-electron
 
 Electron main-process client for the zot sidecar. Release packages contain sidecars for macOS, Linux, and Windows on arm64 and x64.
 
@@ -16,7 +16,7 @@ When packaging with ASAR, unpack the executable sidecars so the operating system
 ```json
 {
   "build": {
-    "asarUnpack": ["node_modules/@zot-native/electron/bin/**"]
+    "asarUnpack": ["node_modules/@zot/native-electron/bin/**"]
   }
 }
 ```

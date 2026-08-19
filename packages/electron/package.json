@@ -1,5 +1,5 @@
 {
-  "name": "@zot-native/electron",
+  "name": "@zot/native-electron",
   "version": "0.0.1",
   "description": "Production Electron client for the zot agent runtime",
   "type": "module",
@@ -23,8 +23,8 @@
   "bugs": "https://github.com/patriceckhart/zot-native-sdk/issues",
   "keywords": ["zot", "electron", "ai", "agent", "llm"],
   "engines": { "node": ">=20" },
-  "publishConfig": { "access": "public" },
-  "dependencies": { "@zot-native/core": "0.0.1" },
+  "dependencies": { "@zot/native-core": "0.0.1" },
+  "bundledDependencies": ["@zot/native-core"],
   "scripts": {
     "build": "tsc -p tsconfig.json",
     "typecheck": "tsc -p tsconfig.json --noEmit"

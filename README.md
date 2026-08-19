@@ -8,8 +8,8 @@ iOS, Android, and macOS embed zot in-process and do not require a backend when u
 
 This repository is a production release candidate. The multiplatform React Native implementation is complete, with these release constraints:
 
-- Packages are currently consumed from source. The `0.0.1` packages have not been published to npm, pub.dev, or crates.io.
-- Generated XCFrameworks, Android JNI libraries, sidecars, and gateway executables are not committed to Git. Build them with `make stage` and `make gateway`, or install them from a GitHub Release when available.
+- Packages and binaries are distributed through GitHub Releases, not npmjs, pub.dev, or crates.io.
+- Generated XCFrameworks, Android JNI libraries, sidecars, and gateway executables are not committed to Git. Tagged releases build and attach them automatically.
 - Live provider requests require externally supplied API keys or OAuth test credentials.
 - React Native 0.82 iOS remains blocked by an upstream `fmt` compilation failure with Xcode 26 before the zot target compiles.
 - Production distribution still requires platform signing, registry credentials, tags, and release artifacts.
@@ -18,13 +18,13 @@ This repository is a production release candidate. The multiplatform React Nativ
 
 | Consumer | Package or artifact | Runtime |
 |---|---|---|
-| React Native iOS, Android, macOS | `@zot-native/react-native` | In-process XCFramework or Android JNI bindings |
-| React Native Windows, Linux, web | `@zot-native/react-native` | WebSocket connection to `zot-gateway` |
+| React Native iOS, Android, macOS | `@zot/native-react-native` | In-process XCFramework or Android JNI bindings |
+| React Native Windows, Linux, web | `@zot/native-react-native` | WebSocket connection to `zot-gateway` |
 | Flutter mobile | `zot_native` | In-process iOS or Android bindings |
 | Flutter desktop | `ZotDesktopClient` from `zot_native` | Host-provided desktop sidecar |
-| Electron | `@zot-native/electron` | Bundled desktop sidecar |
-| Tauri 2 | `@zot-native/tauri` and `tauri-plugin-zot` | Bundled desktop sidecar |
-| Vercel Labs Native SDK | `@zot-native/native-sdk` | Replay-aware `Cmd.spawn` sidecar |
+| Electron | `@zot/native-electron` | Bundled desktop sidecar |
+| Tauri 2 | `@zot/native-tauri` and `tauri-plugin-zot` | Bundled desktop sidecar |
+| Vercel Labs Native SDK | `@zot/native-sdk` | Optional replay-aware adapter for Vercel Labs Native SDK |
 | Swift directly | `apple/Package.swift` | XCFramework |
 | Kotlin or Java directly | `artifacts/zot.aar` | AAR |
 
@@ -68,44 +68,79 @@ OAuth browser authorization, callback handling, token refresh, revocation, accou
 
 ## Installation
 
-The package manifests are prepared for npm, pub.dev, crates.io, Swift Package Manager, and release artifact distribution. Until publication, clone this repository and prepare it with:
+All first-party packages and binaries are installed from the repository's GitHub Releases. Replace `v0.0.1` with the desired release.
+
+### React Native
 
 ```sh
-bun install
-bun run build
-make stage
-make gateway
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-react-native-0.0.1.tgz
 ```
 
-Add the source packages to a React Native application on the same machine:
+The archive contains the shared core, Apple XCFramework, Android JNI libraries, and Java bindings.
+
+### Electron
 
 ```sh
-bun add /absolute/path/to/zot-native-sdk/packages/core
-bun add /absolute/path/to/zot-native-sdk/packages/react-native
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-electron-0.0.1.tgz
 ```
 
-Then run CocoaPods for iOS or macOS and rebuild the native application. Registry package names are:
+The archive contains all six macOS, Linux, and Windows sidecars.
+
+### Tauri
 
 ```sh
-npm install @zot-native/react-native
-npm install @zot-native/electron
-npm install @zot-native/tauri
-npm install @zot-native/native-sdk
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-tauri-0.0.1.tgz
 ```
+
+Use the Rust plugin directly from GitHub and download the sidecar matching the target platform from the same release:
+
+```toml
+[dependencies]
+tauri-plugin-zot = { git = "https://github.com/patriceckhart/zot-native-sdk", tag = "v0.0.1" }
+```
+
+### Flutter
+
+Download and extract `zot-native-flutter-0.0.1.tar.gz`, then reference it as a path dependency:
+
+```yaml
+dependencies:
+  zot_native:
+    path: vendor/zot-native-flutter
+```
+
+The archive contains the staged iOS XCFramework and Android JNI bindings. A plain Git dependency cannot include generated native artifacts because they are intentionally excluded from Git.
+
+### Swift
+
+Download and extract `zot-native-swift-0.0.1.zip`, then add the extracted directory as a local Swift package. It contains `Package.swift` and `Zot.xcframework`.
+
+### Android
+
+Download `zot-native-android-0.0.1.aar` and add it as a Gradle file dependency:
+
+```kotlin
+dependencies {
+    implementation(files("libs/zot-native-android-0.0.1.aar"))
+}
+```
+
+### Vercel Labs Native SDK
+
+`@zot/native-sdk` is only for the separate Vercel Labs Native SDK runtime. Most users do not need it:
 
 ```sh
-flutter pub add zot_native
-cargo add tauri-plugin-zot
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-sdk-0.0.1.tgz
 ```
 
-These registry packages are not published yet. Direct Swift consumers use `apple/Package.swift`. Direct Kotlin and Java consumers use the release AAR or locally generated `artifacts/zot.aar`.
+No zot package is published to npmjs, pub.dev, or crates.io.
 
 ## Basic usage
 
 ### React Native
 
 ```ts
-import { createSession } from "@zot-native/react-native";
+import { createSession } from "@zot/native-react-native";
 
 const session = await createSession({
   provider: "anthropic",
@@ -153,7 +188,7 @@ The gateway defaults to `127.0.0.1:8787`, exposes WebSocket RPC at `/v1/zot`, an
 Create the client in the Electron main process, not in an unrestricted renderer:
 
 ```ts
-import { createClient } from "@zot-native/electron";
+import { createClient } from "@zot/native-electron";
 
 const client = createClient();
 const session = await client.createSession({
@@ -173,7 +208,7 @@ When packaging with ASAR, sidecars must remain executable outside the archive. F
 ```json
 {
   "build": {
-    "asarUnpack": ["node_modules/@zot-native/electron/bin/**"]
+    "asarUnpack": ["node_modules/@zot/native-electron/bin/**"]
   }
 }
 ```
@@ -214,7 +249,7 @@ The host application must package the correct sidecar for its operating system a
 
 ### Tauri 2
 
-Configure `tauri-plugin-zot` in Rust with the packaged sidecar path, then use `createSession` from `@zot-native/tauri` in the webview. See `packages/tauri/README.md` and `crates/tauri-plugin-zot/README.md` for the integration surface.
+Configure `tauri-plugin-zot` in Rust with the packaged sidecar path, then use `createSession` from `@zot/native-tauri` in the webview. See `packages/tauri/README.md` and `crates/tauri-plugin-zot/README.md` for the integration surface.
 
 ```rust
 fn main() {
@@ -432,9 +467,9 @@ Before declaring a production release:
 5. Verify artifact checksums and minimum platform versions.
 6. Sign and notarize desktop and Apple artifacts where required.
 7. Sign Android release artifacts and applications where required.
-8. Publish matching package versions to npm, pub.dev, and crates.io.
-9. Publish XCFrameworks, the AAR, six sidecars, and six gateway executables in a GitHub Release.
-10. Verify installation from each public registry and release artifact.
+8. Build JavaScript, Flutter, Swift, Android, sidecar, and gateway archives from the tagged commit.
+9. Publish all generated files in a GitHub Release.
+10. Verify every documented GitHub installation path.
 
 ## License
 

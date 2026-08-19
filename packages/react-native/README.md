@@ -1,4 +1,4 @@
-# @zot-native/react-native
+# @zot/native-react-native
 
 Use zot from one React Native API on iOS, Android, macOS, Windows, Linux, and web.
 
@@ -8,29 +8,20 @@ Use zot from one React Native API on iOS, Android, macOS, Windows, Linux, and we
 
 ## Installation
 
-The package is not published to npm yet. Build the repository first:
+Install the package archive directly from GitHub Releases. The shared core is bundled, so no second zot package is required:
 
 ```sh
-bun install
-bun run build
-make stage
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-react-native-0.0.1.tgz
 ```
 
-Then add both local packages to the React Native application:
-
-```sh
-bun add /absolute/path/to/zot-native-sdk/packages/core
-bun add /absolute/path/to/zot-native-sdk/packages/react-native
-```
-
-Run CocoaPods for iOS or macOS, then rebuild the native application. Once published, installation will be `bun add @zot-native/react-native`.
+Run CocoaPods for iOS or macOS, then rebuild the native application. Zot packages are not published to npmjs.
 
 ## Mobile and macOS
 
 Native platforms do not require a gateway:
 
 ```ts
-import { createSession } from "@zot-native/react-native";
+import { createSession } from "@zot/native-react-native";
 
 const session = await createSession({
   provider: "anthropic",

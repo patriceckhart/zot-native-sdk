@@ -10,25 +10,25 @@
       },
     },
     "packages/core": {
-      "name": "@zot-native/core",
+      "name": "@zot/native-core",
       "version": "0.0.1",
     },
     "packages/electron": {
-      "name": "@zot-native/electron",
+      "name": "@zot/native-electron",
       "version": "0.0.1",
       "dependencies": {
-        "@zot-native/core": "workspace:*",
+        "@zot/native-core": "0.0.1",
       },
     },
     "packages/native-sdk": {
-      "name": "@zot-native/native-sdk",
+      "name": "@zot/native-sdk",
       "version": "0.0.1",
     },
     "packages/react-native": {
-      "name": "@zot-native/react-native",
+      "name": "@zot/native-react-native",
       "version": "0.0.1",
       "dependencies": {
-        "@zot-native/core": "0.0.1",
+        "@zot/native-core": "0.0.1",
       },
       "peerDependencies": {
         "react": "*",
@@ -36,11 +36,11 @@
       },
     },
     "packages/tauri": {
-      "name": "@zot-native/tauri",
+      "name": "@zot/native-tauri",
       "version": "0.0.1",
       "dependencies": {
         "@tauri-apps/api": "^2.0.0",
-        "@zot-native/core": "workspace:*",
+        "@zot/native-core": "0.0.1",
       },
     },
   },
@@ -133,15 +133,15 @@
 
     "@types/yargs-parser": ["@types/yargs-parser@21.0.3", "", {}, "sha512-I4q9QU9MQv4oEOz4tAHJtNz1cwuLxn2F3xcc2iV5WdqLPpUnj30aUuxt1mAxYTG+oe8CZMV/+6rU4S4gRDzqtQ=="],
 
-    "@zot-native/core": ["@zot-native/core@workspace:packages/core"],
+    "@zot/native-core": ["@zot/native-core@workspace:packages/core"],
 
-    "@zot-native/electron": ["@zot-native/electron@workspace:packages/electron"],
+    "@zot/native-electron": ["@zot/native-electron@workspace:packages/electron"],
 
-    "@zot-native/native-sdk": ["@zot-native/native-sdk@workspace:packages/native-sdk"],
+    "@zot/native-react-native": ["@zot/native-react-native@workspace:packages/react-native"],
 
-    "@zot-native/react-native": ["@zot-native/react-native@workspace:packages/react-native"],
+    "@zot/native-sdk": ["@zot/native-sdk@workspace:packages/native-sdk"],
 
-    "@zot-native/tauri": ["@zot-native/tauri@workspace:packages/tauri"],
+    "@zot/native-tauri": ["@zot/native-tauri@workspace:packages/tauri"],
 
     "abort-controller": ["abort-controller@3.0.0", "", { "dependencies": { "event-target-shim": "^5.0.0" } }, "sha512-h8lQ8tacZYnR3vNQTgibj+tODHI5/+l06Au2Pcriv/Gmet0eaj4TwWH41sO9wnHDiQsEj19q0drzdWdeAHtweg=="],
 

@@ -1,9 +1,9 @@
-# @zot-native/tauri
+# @zot/native-tauri
 
 TypeScript client for `tauri-plugin-zot`. Configure the Rust plugin with the platform-specific `zot-bridge` sidecar path, then create sessions from the webview:
 
 ```ts
-import { createSession } from "@zot-native/tauri";
+import { createSession } from "@zot/native-tauri";
 
 const session = await createSession({ provider: "anthropic", apiKey });
 const unsubscribe = session.onEvent(event => {

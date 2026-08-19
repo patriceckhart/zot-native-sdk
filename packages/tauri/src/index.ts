@@ -1,7 +1,7 @@
 import { invoke } from "@tauri-apps/api/core";
 import { listen } from "@tauri-apps/api/event";
-import type { SessionOptions, ZotEvent, ZotSession } from "@zot-native/core";
-export type { SessionOptions, ZotEvent, ZotSession } from "@zot-native/core";
+import type { SessionOptions, ZotEvent, ZotSession } from "@zot/native-core";
+export type { SessionOptions, ZotEvent, ZotSession } from "@zot/native-core";
 
 export async function createSession(options: SessionOptions): Promise<ZotSession> {
   const id = await invoke<string>("plugin:zot|create_session", { options });

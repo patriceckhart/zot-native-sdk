@@ -1,5 +1,5 @@
 import { NativeEventEmitter, NativeModules } from "react-native";
-import type { SessionOptions, ZotEvent, ZotSession } from "@zot-native/core";
+import type { SessionOptions, ZotEvent, ZotSession } from "@zot/native-core";
 
 const NativeZot = NativeModules.ZotNative;
 if (!NativeZot) throw new Error("ZotNative is not linked. Rebuild the native application.");

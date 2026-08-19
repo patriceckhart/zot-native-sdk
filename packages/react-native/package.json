@@ -1,5 +1,5 @@
 {
-  "name": "@zot-native/react-native",
+  "name": "@zot/native-react-native",
   "version": "0.0.1",
   "description": "Multiplatform zot runtime for React Native and React Native Web",
   "main": "dist/index.js",
@@ -23,8 +23,8 @@
   "homepage": "https://github.com/patriceckhart/zot-native-sdk#readme",
   "bugs": "https://github.com/patriceckhart/zot-native-sdk/issues",
   "keywords": ["zot", "react-native", "react-native-web", "ios", "android", "macos", "windows", "linux", "ai", "agent"],
-  "publishConfig": { "access": "public" },
-  "dependencies": { "@zot-native/core": "0.0.1" },
+  "dependencies": { "@zot/native-core": "0.0.1" },
+  "bundledDependencies": ["@zot/native-core"],
   "peerDependencies": { "react": "*", "react-native": ">=0.72" },
   "scripts": {
     "build": "tsc -p tsconfig.json",

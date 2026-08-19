@@ -1,8 +1,8 @@
-name: Build native artifacts
+name: Build GitHub release artifacts
 on:
   workflow_dispatch:
-  release:
-    types: [published]
+  push:
+    tags: ["v*"]
 
 permissions:
   contents: write
@@ -20,39 +20,13 @@ jobs:
       - run: gomobile bind -target=android -androidapi 24 -o artifacts/zot.aar ./bridge
       - run: cd artifacts && zip -r -X Zot.xcframework.zip Zot.xcframework && cd mobile && zip -r -X ../ZotMobile.xcframework.zip Zot.xcframework
       - uses: actions/upload-artifact@v4
-        with: { name: mobile, path: "artifacts/*" }
-      - if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.release.tag_name }}
-          files: |
+          name: mobile
+          path: |
             artifacts/Zot.xcframework.zip
             artifacts/ZotMobile.xcframework.zip
             artifacts/zot.aar
-  gateways:
-    strategy:
-      matrix:
-        include:
-          - { os: macos-15, goos: darwin, goarch: arm64, name: zot-gateway-darwin-arm64 }
-          - { os: macos-15, goos: darwin, goarch: amd64, name: zot-gateway-darwin-x64 }
-          - { os: ubuntu-latest, goos: linux, goarch: amd64, name: zot-gateway-linux-x64 }
-          - { os: ubuntu-latest, goos: linux, goarch: arm64, name: zot-gateway-linux-arm64 }
-          - { os: windows-latest, goos: windows, goarch: amd64, name: zot-gateway-windows-x64.exe }
-          - { os: windows-latest, goos: windows, goarch: arm64, name: zot-gateway-windows-arm64.exe }
-    runs-on: ${{ matrix.os }}
-    steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-go@v5
-        with: { go-version-file: go.mod, cache: true }
-      - run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ matrix.name }} ./cmd/zot-gateway
-        shell: bash
-      - uses: actions/upload-artifact@v4
-        with: { name: "${{ matrix.name }}", path: "${{ matrix.name }}" }
-      - if: github.event_name == 'release'
-        uses: softprops/action-gh-release@v2
-        with:
-          tag_name: ${{ github.event.release.tag_name }}
-          files: ${{ matrix.name }}
+
   sidecars:
     strategy:
       matrix:
@@ -72,8 +46,87 @@ jobs:
         shell: bash
       - uses: actions/upload-artifact@v4
         with: { name: "${{ matrix.name }}", path: "${{ matrix.name }}" }
-      - if: github.event_name == 'release'
+
+  gateways:
+    strategy:
+      matrix:
+        include:
+          - { os: macos-15, goos: darwin, goarch: arm64, name: zot-gateway-darwin-arm64 }
+          - { os: macos-15, goos: darwin, goarch: amd64, name: zot-gateway-darwin-x64 }
+          - { os: ubuntu-latest, goos: linux, goarch: amd64, name: zot-gateway-linux-x64 }
+          - { os: ubuntu-latest, goos: linux, goarch: arm64, name: zot-gateway-linux-arm64 }
+          - { os: windows-latest, goos: windows, goarch: amd64, name: zot-gateway-windows-x64.exe }
+          - { os: windows-latest, goos: windows, goarch: arm64, name: zot-gateway-windows-arm64.exe }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with: { go-version-file: go.mod, cache: true }
+      - run: GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} go build -o ${{ matrix.name }} ./cmd/zot-gateway
+        shell: bash
+      - uses: actions/upload-artifact@v4
+        with: { name: "${{ matrix.name }}", path: "${{ matrix.name }}" }
+
+  packages:
+    needs: [mobile, sidecars, gateways]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - uses: actions/download-artifact@v4
+        with:
+          name: mobile
+          path: downloaded/mobile
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: zot-bridge-*
+          path: downloaded/sidecars
+          merge-multiple: true
+      - uses: actions/download-artifact@v4
+        with:
+          pattern: zot-gateway-*
+          path: downloaded/gateways
+          merge-multiple: true
+      - name: Stage native package artifacts
+        run: |
+          rm -rf packages/react-native/ios/Zot.xcframework packages/flutter/ios/zot_native/Zot.xcframework packages/electron/bin
+          unzip -q downloaded/mobile/Zot.xcframework.zip -d packages/react-native/ios
+          unzip -q downloaded/mobile/ZotMobile.xcframework.zip -d packages/flutter/ios/zot_native
+          rm -rf android-unpacked packages/react-native/android/src/main/jniLibs packages/flutter/android/src/main/jniLibs
+          mkdir -p android-unpacked packages/react-native/android/libs packages/flutter/android/libs
+          unzip -q downloaded/mobile/zot.aar classes.jar 'jni/*' -d android-unpacked
+          cp android-unpacked/classes.jar packages/react-native/android/libs/zot.jar
+          cp android-unpacked/classes.jar packages/flutter/android/libs/zot.jar
+          cp -R android-unpacked/jni packages/react-native/android/src/main/jniLibs
+          cp -R android-unpacked/jni packages/flutter/android/src/main/jniLibs
+          mkdir -p packages/electron/bin
+          cp downloaded/sidecars/* packages/electron/bin/
+          chmod +x packages/electron/bin/zot-bridge-* || true
+      - name: Build JavaScript packages
+        run: bun install && bun run build
+      - name: Create GitHub distribution archives
+        run: |
+          VERSION="${GITHUB_REF_NAME#v}"
+          if [[ "$GITHUB_REF_TYPE" != "tag" ]]; then VERSION="0.0.1"; fi
+          mkdir -p release swift-package
+          npm pack ./packages/core --pack-destination release
+          npm pack ./packages/react-native --pack-destination release
+          npm pack ./packages/electron --pack-destination release
+          npm pack ./packages/tauri --pack-destination release
+          npm pack ./packages/native-sdk --pack-destination release
+          tar --exclude='.dart_tool' --exclude='pubspec.lock' --exclude='.DS_Store' -czf "release/zot-native-flutter-${VERSION}.tar.gz" -C packages/flutter .
+          tar --exclude='target' --exclude='.DS_Store' -czf "release/zot-native-tauri-rust-${VERSION}.tar.gz" -C crates/tauri-plugin-zot .
+          cp apple/Package.swift swift-package/Package.swift
+          unzip -q downloaded/mobile/Zot.xcframework.zip -d swift-package
+          (cd swift-package && zip -r -X "../release/zot-native-swift-${VERSION}.zip" .)
+          cp downloaded/mobile/zot.aar "release/zot-native-android-${VERSION}.aar"
+          cp downloaded/sidecars/* downloaded/gateways/* release/
+          chmod +x release/zot-bridge-* release/zot-gateway-* || true
+      - uses: actions/upload-artifact@v4
+        with: { name: github-packages, path: "release/*" }
+      - if: startsWith(github.ref, 'refs/tags/v')
         uses: softprops/action-gh-release@v2
         with:
-          tag_name: ${{ github.event.release.tag_name }}
-          files: ${{ matrix.name }}
+          tag_name: ${{ github.ref_name }}
+          generate_release_notes: true
+          files: release/*

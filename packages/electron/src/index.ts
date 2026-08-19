@@ -3,8 +3,8 @@ import { createInterface } from "node:readline";
 import { randomUUID } from "node:crypto";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
-import type { SessionOptions, ZotEvent, ZotSession } from "@zot-native/core";
-export type { SessionOptions, ZotEvent, ZotSession } from "@zot-native/core";
+import type { SessionOptions, ZotEvent, ZotSession } from "@zot/native-core";
+export type { SessionOptions, ZotEvent, ZotSession } from "@zot/native-core";
 
 type Listener = (event: ZotEvent) => void;
 
