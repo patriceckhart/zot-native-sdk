@@ -125,12 +125,12 @@ func TestConcurrentPromptsAreDispatchedWithoutBlockingInput(t *testing.T) {
 	case <-time.After(time.Second):
 		t.Fatal("first prompt did not start")
 	}
-	fake.release <- struct{}{}
 	select {
 	case <-fake.promptStart:
 	case <-time.After(time.Second):
 		t.Fatal("second prompt did not start")
 	}
+	fake.release <- struct{}{}
 	fake.release <- struct{}{}
 	server.runWG.Wait()
 	if maximum := fake.maxActive.Load(); maximum != 2 {

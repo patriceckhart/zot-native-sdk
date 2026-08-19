@@ -2,7 +2,10 @@ module github.com/patriceckhart/zot-native-sdk
 
 go 1.25.0
 
-require github.com/patriceckhart/zot v0.2.35
+require (
+	github.com/gorilla/websocket v1.5.3
+	github.com/patriceckhart/zot v0.2.35
+)
 
 require (
 	github.com/alecthomas/chroma/v2 v2.23.1 // indirect

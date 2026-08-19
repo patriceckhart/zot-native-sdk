@@ -47,6 +47,13 @@ class ZotModule(private val context: ReactApplicationContext) : ReactContextBase
   @ReactMethod fun addListener(name: String) {}
   @ReactMethod fun removeListeners(count: Int) {}
 
+  override fun invalidate() {
+    sessions.values.forEach { it.abort() }
+    sessions.clear()
+    executor.shutdownNow()
+    super.invalidate()
+  }
+
   private fun emit(sessionId: String, event: WritableMap) {
     context.runOnUiQueueThread {
       val body = Arguments.createMap().apply { putString("sessionId", sessionId); putMap("event", event) }

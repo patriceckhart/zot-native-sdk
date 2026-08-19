@@ -1,9 +1,18 @@
 export type ApiKeyProvider = "anthropic" | "openai" | "openai-responses" | "gemini";
 export type OAuthProvider = "anthropic" | "openai-codex";
 
+export interface GatewayOptions {
+  /** WebSocket endpoint exposed by zot-gateway, for example wss://example.com/v1/zot. */
+  url: string;
+  /** Optional access token configured through ZOT_GATEWAY_TOKEN on the gateway. */
+  token?: string;
+}
+
 export interface CommonOptions {
   model?: string;
   systemPrompt?: string;
+  /** Required on platforms that cannot embed zot, including web, Windows, and Linux. */
+  gateway?: GatewayOptions;
 }
 
 export interface ApiKeyOptions extends CommonOptions {

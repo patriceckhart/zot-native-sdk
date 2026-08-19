@@ -10,7 +10,7 @@ ifeq ($(HOST_OS),windows)
 HOST_EXT := .exe
 endif
 
-.PHONY: test sidecar desktop desktop-all apple android stage
+.PHONY: test sidecar gateway desktop desktop-all apple android stage
 
 test:
 	go test ./...
@@ -18,6 +18,10 @@ test:
 sidecar:
 	mkdir -p binaries
 	go build -o binaries/zot-bridge$(HOST_EXT) ./cmd/zot-bridge
+
+gateway:
+	mkdir -p binaries
+	go build -o binaries/zot-gateway$(HOST_EXT) ./cmd/zot-gateway
 
 desktop: sidecar
 	mkdir -p packages/electron/bin
@@ -45,7 +49,7 @@ android:
 stage: apple android desktop-all
 	rm -rf apple/Zot.xcframework packages/react-native/ios/Zot.xcframework packages/flutter/ios/Zot.xcframework packages/flutter/ios/zot_native/Zot.xcframework
 	cp -R artifacts/Zot.xcframework apple/Zot.xcframework
-	cp -R artifacts/mobile/Zot.xcframework packages/react-native/ios/Zot.xcframework
+	cp -R artifacts/Zot.xcframework packages/react-native/ios/Zot.xcframework
 	cp -R artifacts/mobile/Zot.xcframework packages/flutter/ios/zot_native/Zot.xcframework
 	cp packages/flutter/ios/Classes/ZotNativePlugin.swift packages/flutter/ios/zot_native/Sources/zot_native/ZotNativePlugin.swift
 	rm -rf artifacts/android-unpacked packages/react-native/android/src/main/jniLibs packages/flutter/android/src/main/jniLibs

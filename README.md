@@ -18,7 +18,8 @@ Do not treat the current `0.0.1` packages as published registry releases until t
 
 | Consumer | Package or artifact | Runtime |
 |---|---|---|
-| React Native | `@zot-native/react-native` | In-process XCFramework or Android JNI bindings |
+| React Native iOS, Android, macOS | `@zot-native/react-native` | In-process XCFramework or Android JNI bindings |
+| React Native Windows, Linux, web | `@zot-native/react-native` | WebSocket connection to `zot-gateway` |
 | Flutter mobile | `zot_native` | In-process iOS or Android bindings |
 | Flutter desktop | `ZotDesktopClient` from `zot_native` | Host-provided desktop sidecar |
 | Electron | `@zot-native/electron` | Bundled desktop sidecar |
@@ -27,7 +28,7 @@ Do not treat the current `0.0.1` packages as published registry releases until t
 | Swift directly | `apple/Package.swift` | XCFramework |
 | Kotlin or Java directly | `artifacts/zot.aar` | AAR |
 
-The Go package in `bridge/` is the shared implementation. Mobile bindings are generated with `gomobile`. Desktop clients communicate with `cmd/zot-bridge` through newline-delimited JSON over standard input and output.
+The Go package in `bridge/` is the shared implementation. Mobile bindings are generated with `gomobile`. Desktop clients communicate with `cmd/zot-bridge` through newline-delimited JSON over standard input and output. Browser and remote React Native clients communicate with `cmd/zot-gateway` over WebSocket.
 
 No filesystem, shell, or subprocess tools are registered in embedded zot sessions.
 
@@ -107,6 +108,31 @@ const unsubscribe = session.onEvent(event => {
 await session.prompt("Hello");
 unsubscribe();
 ```
+
+### React Native Windows, Linux, and web
+
+These platforms use the same API through a gateway. Start the gateway on a trusted host:
+
+```sh
+ZOT_GATEWAY_TOKEN="replace-me" \
+ZOT_GATEWAY_ORIGINS="https://app.example.com" \
+go run ./cmd/zot-gateway -addr 0.0.0.0:8787
+```
+
+Use TLS in production, then configure the session:
+
+```ts
+const session = await createSession({
+  provider: "anthropic",
+  apiKey,
+  gateway: {
+    url: "wss://api.example.com/v1/zot",
+    token: userGatewayToken,
+  },
+});
+```
+
+The gateway defaults to `127.0.0.1:8787`, exposes WebSocket RPC at `/v1/zot`, and has a health endpoint at `/healthz`. Configure allowed browser origins with the comma-separated `ZOT_GATEWAY_ORIGINS` environment variable. Use authenticated, short-lived per-user gateway credentials in production.
 
 ### Electron
 
@@ -273,6 +299,8 @@ await session.close();
 `abort()` is safe when no prompt is active. Prompt calls on the same in-process session are serialized. Exported history is provider-neutral JSON and imports are limited to 16 MiB.
 
 ## Building from source
+
+Build the web and remote React Native gateway with `make gateway`, or run it directly with `go run ./cmd/zot-gateway`.
 
 Install the required toolchains, then initialize `gomobile`:
 

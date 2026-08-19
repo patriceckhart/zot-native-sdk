@@ -5,6 +5,7 @@ import Zot
 @objc(ZotNative)
 final class ZotNative: RCTEventEmitter {
     private var sessions: [String: ZotSession] = [:]
+    private let sessionsLock = NSLock()
     private var hasListeners = false
 
     override static func requiresMainQueueSetup() -> Bool { false }
@@ -28,12 +29,14 @@ final class ZotNative: RCTEventEmitter {
             return
         }
         let id = UUID().uuidString
+        sessionsLock.lock()
         sessions[id] = session
+        sessionsLock.unlock()
         resolve(id)
     }
 
     @objc func prompt(_ sessionId: String, message: String, resolver resolve: @escaping RCTPromiseResolveBlock, rejecter reject: @escaping RCTPromiseRejectBlock) {
-        guard let session = sessions[sessionId] else {
+        guard let session = session(withId: sessionId) else {
             reject("zot_session", "Unknown session", nil)
             return
         }
@@ -44,22 +47,25 @@ final class ZotNative: RCTEventEmitter {
     }
 
     @objc func abort(_ sessionId: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
-        sessions[sessionId]?.abort()
+        session(withId: sessionId)?.abort()
         resolve(nil)
     }
 
     @objc func closeSession(_ sessionId: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
-        sessions.removeValue(forKey: sessionId)?.abort()
+        sessionsLock.lock()
+        let session = sessions.removeValue(forKey: sessionId)
+        sessionsLock.unlock()
+        session?.abort()
         resolve(nil)
     }
 
     @objc func exportHistory(_ sessionId: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
-        guard let session = sessions[sessionId] else { reject("zot_session", "Unknown session", nil); return }
+        guard let session = session(withId: sessionId) else { reject("zot_session", "Unknown session", nil); return }
         DispatchQueue.global(qos: .userInitiated).async { resolve(session.exportHistory()) }
     }
 
     @objc func importHistory(_ sessionId: String, history: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
-        guard let session = sessions[sessionId] else { reject("zot_session", "Unknown session", nil); return }
+        guard let session = session(withId: sessionId) else { reject("zot_session", "Unknown session", nil); return }
         DispatchQueue.global(qos: .userInitiated).async {
             do { try session.importHistory(history); resolve(nil) }
             catch { reject("zot_history", error.localizedDescription, error) }
@@ -68,6 +74,21 @@ final class ZotNative: RCTEventEmitter {
 
     @objc func extractOpenAIAccountId(_ idToken: String, resolver resolve: RCTPromiseResolveBlock, rejecter reject: RCTPromiseRejectBlock) {
         resolve(ZotExtractOpenAIAccountID(idToken))
+    }
+
+    override func invalidate() {
+        sessionsLock.lock()
+        let activeSessions = Array(sessions.values)
+        sessions.removeAll()
+        sessionsLock.unlock()
+        activeSessions.forEach { $0.abort() }
+        super.invalidate()
+    }
+
+    private func session(withId id: String) -> ZotSession? {
+        sessionsLock.lock()
+        defer { sessionsLock.unlock() }
+        return sessions[id]
     }
 
     private func emit(_ sessionId: String, _ event: [String: Any]) {
