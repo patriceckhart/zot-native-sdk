@@ -1,6 +1,12 @@
 # @zot/native-tauri
 
-TypeScript client for `tauri-plugin-zot`. Configure the Rust plugin with the platform-specific `zot-bridge` sidecar path, then create sessions from the webview:
+TypeScript client for `tauri-plugin-zot`. Install the client from GitHub Releases:
+
+```sh
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-tauri-0.0.1.tgz
+```
+
+Configure the Rust plugin from the `v0.0.1` Git tag and provide the platform-specific `zot-bridge` release sidecar path, then create sessions from the webview:
 
 ```ts
 import { createSession } from "@zot/native-tauri";

@@ -6,13 +6,13 @@ iOS, Android, and macOS embed zot in-process and do not require a backend when u
 
 ## Status
 
-This repository is a production release candidate. The multiplatform React Native implementation is complete, with these release constraints:
+Version [`v0.0.1`](https://github.com/patriceckhart/zot-native-sdk/releases/tag/v0.0.1) is available from GitHub Releases. The multiplatform React Native implementation is complete, with these constraints:
 
 - Packages and binaries are distributed through GitHub Releases, not npmjs, pub.dev, or crates.io.
 - Generated XCFrameworks, Android JNI libraries, sidecars, and gateway executables are not committed to Git. Tagged releases build and attach them automatically.
 - Live provider requests require externally supplied API keys or OAuth test credentials.
 - React Native 0.82 iOS remains blocked by an upstream `fmt` compilation failure with Xcode 26 before the zot target compiles.
-- Production distribution still requires platform signing, registry credentials, tags, and release artifacts.
+- Production applications must apply the appropriate platform signing, notarization, authentication, and credential-storage controls.
 
 ## Supported integrations
 
@@ -23,7 +23,7 @@ This repository is a production release candidate. The multiplatform React Nativ
 | Flutter mobile | `zot_native` | In-process iOS or Android bindings |
 | Flutter desktop | `ZotDesktopClient` from `zot_native` | Host-provided desktop sidecar |
 | Electron | `@zot/native-electron` | Bundled desktop sidecar |
-| Tauri 2 | `@zot/native-tauri` and `tauri-plugin-zot` | Bundled desktop sidecar |
+| Tauri 2 | `@zot/native-tauri` and `tauri-plugin-zot` | Host-provided release sidecar |
 | Vercel Labs Native SDK | `@zot/native-sdk` | Optional replay-aware adapter for Vercel Labs Native SDK |
 | Swift directly | `apple/Package.swift` | XCFramework |
 | Kotlin or Java directly | `artifacts/zot.aar` | AAR |
@@ -124,6 +124,19 @@ dependencies {
     implementation(files("libs/zot-native-android-0.0.1.aar"))
 }
 ```
+
+### Gateway for React Native Windows, Linux, and web
+
+Download the `zot-gateway` executable matching the server operating system and architecture from the release. For example:
+
+```sh
+curl -L -o zot-gateway \
+  https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-gateway-linux-x64
+chmod +x zot-gateway
+ZOT_GATEWAY_TOKEN="replace-me" ./zot-gateway -addr 0.0.0.0:8787
+```
+
+Use the corresponding `.exe` asset on Windows. Put the gateway behind TLS and use `wss://` in production.
 
 ### Vercel Labs Native SDK
 
@@ -268,7 +281,7 @@ Native SDK uses `zot-bridge oneshot-native` through replay-aware `Cmd.spawn`. It
 
 ### Direct Swift
 
-Run `make apple`, place the generated `Zot.xcframework` beside `apple/Package.swift`, and add that directory as a local Swift package:
+Download and extract `zot-native-swift-0.0.1.zip`, then add that directory as a local Swift package. Source builds can generate the same package with `make apple`:
 
 ```swift
 import Zot
@@ -287,7 +300,7 @@ Conform to `ZotStreamProtocol`, call `prompt` away from the UI thread, and use `
 
 ### Direct Kotlin or Java
 
-Run `make android`, then add `artifacts/zot.aar` as an Android application dependency:
+Download `zot-native-android-0.0.1.aar` from the GitHub Release and add it as an Android application dependency. Source builds can generate `artifacts/zot.aar` with `make android`:
 
 ```kotlin
 import zot.Zot

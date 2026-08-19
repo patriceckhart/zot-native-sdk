@@ -39,16 +39,15 @@ Requires iOS 15, macOS 12, or Android API 24. Run CocoaPods after installation o
 
 ## Windows, Linux, and web
 
-Build and start a gateway on a trusted server:
+Download the gateway executable matching the trusted server's operating system and architecture from GitHub Releases. For example:
 
 ```sh
-make gateway
-```
-
-```sh
+curl -L -o zot-gateway \
+  https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-gateway-linux-x64
+chmod +x zot-gateway
 ZOT_GATEWAY_TOKEN="replace-me" \
 ZOT_GATEWAY_ORIGINS="https://app.example.com" \
-go run ./cmd/zot-gateway -addr 0.0.0.0:8787
+./zot-gateway -addr 0.0.0.0:8787
 ```
 
 Put it behind TLS and use `wss://` outside local development. Then provide the endpoint when creating a session:

@@ -1,6 +1,12 @@
 # Zot for Vercel Labs Native SDK
 
-A replay-safe adapter for Native SDK 0.8.4 and later. It uses `Cmd.spawn` with `zot-bridge oneshot-native`, so no Zig host customization is required on desktop.
+A replay-safe adapter for Native SDK 0.8.4 and later. It uses `Cmd.spawn` with `zot-bridge oneshot-native`, so no Zig host customization is required on desktop. This package is only for Vercel Labs Native SDK, not React Native or other native application frameworks.
+
+Install the archive from GitHub Releases:
+
+```sh
+bun add https://github.com/patriceckhart/zot-native-sdk/releases/download/v0.0.1/zot-native-sdk-0.0.1.tgz
+```
 
 Native SDK intentionally builds without reading `node_modules`. Copy `src/index.ts` from this package into the application as `src/zot.ts`, then import its pure encoder and line decoder.
 

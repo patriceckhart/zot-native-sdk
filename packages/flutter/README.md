@@ -2,6 +2,16 @@
 
 Flutter bindings for the zot agent runtime on iOS, Android, macOS, Windows, and Linux. Mobile uses in-process native bindings. Desktop uses an application-packaged `zot-bridge` sidecar. Sessions support streaming, cancellation, provider API keys, Claude subscription OAuth, ChatGPT Codex subscription OAuth, and history persistence.
 
+Download and extract `zot-native-flutter-0.0.1.tar.gz` from the GitHub Release, then reference the extracted directory:
+
+```yaml
+dependencies:
+  zot_native:
+    path: vendor/zot-native-flutter
+```
+
+The release archive contains generated mobile artifacts that are not present in a plain Git checkout.
+
 ```dart
 final session = await ZotNative.createSession(const ZotSessionOptions(
   provider: 'anthropic',
